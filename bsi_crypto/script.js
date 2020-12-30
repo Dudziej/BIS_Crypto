@@ -96,6 +96,19 @@ const rl = readline.createInterface({
 rl.question("Massage : ", function(message) {
 rl.question("Encryption [AES , RC4 , 3DES , RSA] : ", function(enc) {
 
+var salt = [];
+var oryginal_msg = message;
+
+for ( var index = 0 ; index < 12 ; index++){
+var y = Math.random();
+if (y < 0.5)
+  y = 0
+else
+  y= 1
+salt.push(y)
+}
+
+message += " "+salt;
 
 if(enc == "AES"){
 	var encrypted = CryptoJS.AES.encrypt(message, "Secret Passphrase");
@@ -146,10 +159,55 @@ var decrypted = crypto.privateDecrypt(
 
 }
 
+var t0 = new Date().getTime()
+for(var i = 0 ; i < 10000 ; i++){
+var encrypted_aes_test = CryptoJS.AES.encrypt(message, "Secret Passphrase");
+}
+var t1 = new Date().getTime()
+var aes_time = t1-t0;
+
+var t0 = new Date().getTime()
+for(var i = 0 ; i < 10000 ; i++){
+var encrypted_rc4_test = CryptoJS.RC4.encrypt(message, "Secret Passphrase");
+}
+var t1 = new Date().getTime()
+var rc4_time = t1-t0;
+
+var t0 = new Date().getTime()
+for(var i = 0 ; i < 10000 ; i++){
+var encrypted_3des_time = CryptoJS.TripleDES.encrypt(message, "Secret Passphrase");
+}
+var t1 = new Date().getTime()
+var threedes_time = t1-t0;
+
+const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
+	// The standard secure default length for RSA keys is 2048 bits
+	modulusLength: 2048,
+})
+var t0 = new Date().getTime()
+for(var i = 0 ; i < 10000 ; i++){
+var encrypted_rsa_time = crypto.publicEncrypt(
+	{
+		key: publicKey,
+		padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+		oaepHash: "sha256",
+	},
+	// We convert the data string to a buffer using `Buffer.from`
+	Buffer.from(message)
+)
+}
+var t1 = new Date().getTime()
+var rsa_time = t1-t0;
+
+
+
 console.log("")
 
 console.log("Message :")
-console.log(message)
+console.log(oryginal_msg)
+console.log("")
+console.log("Salt :")
+console.log(salt)
 console.log("")
 
 console.log("Encryption :")
@@ -169,6 +227,17 @@ console.log("Actual Message :")
 console.log(decrypted.toString(CryptoJS.enc.Utf8)) 
 console.log("")
 }
+
+console.log("Time to encrypt msg 10000 times.")
+console.log("")
+console.log("AES : " + aes_time/10000)
+console.log("")
+console.log("RC4 : " + rc4_time/10000)
+console.log("")
+console.log("3DES : " + threedes_time/10000)
+console.log("")
+console.log("RSA : " + rsa_time/10000)
+console.log("")
 
 });  
 });
