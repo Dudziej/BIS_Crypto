@@ -72,9 +72,26 @@ The public key is made of the modulus n and the public (or encryption) exponent 
 The personal key is made of p,q and the private (or decryption) exponent d which must be kept secret.
 
 --------------------------------------------------------------
+Salt:
+In cryptography, a salt is random data that is used as an additional input to a one-way function that hashes data, a password or passphrase. Salts are used to safeguard passwords in storage. Historically a password was stored in plaintext on a system, but over time additional safeguards were developed to protect a user's password against being read from the system. A salt is one of those methods.
+
+A new salt is randomly generated for each password. In a typical setting, the salt and the password (or its version after key stretching) are concatenated and processed with a cryptographic hash function, and the output hash value (but not the original password) is stored with the salt in a database. 
+
+--------------------------------------------------------------
+SHA-2(256):
+Due to the exposed vulnerabilities of SHA-1, cryptographers modified the algorithm to produce SHA-2, which consists of not one but two hash functions known as SHA-256 and SHA-512, using 32- and 64-bit words, respectively. There are additional truncated versions of these hash functions, known as SHA-224, SHA-384, SHA-512/224, and SHA-512/256, which can be used for either part of the algorithm.
+
+SHA-1 and SHA-2 differ in several ways; mainly, SHA-2 produces 224- or 256-sized digests, whereas SHA-1 produces a 160-bit digest; SHA-2 can also have block sizes that contain 1024 bits, or 512 bits, like SHA-1.
+
+Brute force attacks on SHA-2 are not as effective as they are against SHA-1. A brute force search for finding a message that corresponds to a given digest of length LL using brute force would require 2^L2 
+L
+  evaluations, which makes SHA-2 a lot safer against these kinds of attacks.
+
+--------------------------------------------------------------
+
 source:
-    Symetric: https://www.npmjs.com/package/crypto-js
-    Asymetric: https://nodejs.org/api/crypto.html
+    Symetric(AES, RC4, 3DES): https://www.npmjs.com/package/crypto-js
+    Asymetric(RSA): https://nodejs.org/api/crypto.html
 --------------------------------------------------------------
 license:
     MIT
@@ -95,6 +112,8 @@ const rl = readline.createInterface({
 
 rl.question("Massage : ", function(message) {
 rl.question("Encryption [AES , RC4 , 3DES , RSA] : ", function(enc) {
+    
+// adding random 12 random generated symbols as salt
 
 var salt = [];
 var oryginal_msg = message;
@@ -107,7 +126,6 @@ else
   y= 1
 salt.push(y)
 }
-
 message += " "+salt;
 
 if(enc == "AES"){
@@ -158,7 +176,7 @@ var decrypted = crypto.privateDecrypt(
 )
 
 }
-
+    //Count execution time
 var t0 = new Date().getTime()
 for(var i = 0 ; i < 10000 ; i++){
 var encrypted_aes_test = CryptoJS.AES.encrypt(message, "Secret Passphrase");
